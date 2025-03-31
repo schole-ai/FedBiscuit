@@ -9,7 +9,7 @@ URL = 'https://github.com/alibaba/FederatedScope'
 minimal_requires = [
     'numpy<1.23.0',
     'scikit-learn==1.0.2',
-    'scipy==1.7.3',
+    'scipy==1.8',
     'pandas',
     'grpcio>=1.45.0',
     'grpcio-tools',
