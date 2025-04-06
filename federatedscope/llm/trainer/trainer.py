@@ -13,7 +13,7 @@ except:
 import accelerate
 from accelerate import Accelerator
 
-from transformers import AdamW
+from torch.optim import AdamW
 
 from federatedscope.register import register_trainer
 from federatedscope.core.trainers import GeneralTorchTrainer
