@@ -51,7 +51,7 @@ class LLMTrainer(GeneralTorchTrainer):
         if config.llm.accelerator.use:
             self.accelerator = Accelerator(
                 gradient_accumulation_steps=self.grad_accum_step,
-                mixed_precision='bf16')
+                mixed_precision='fp16')
             device = self.accelerator.device
 
         super().__init__(model, data, device, config, only_for_eval, monitor)
