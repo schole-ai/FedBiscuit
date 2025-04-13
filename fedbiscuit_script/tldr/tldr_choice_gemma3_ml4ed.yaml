@@ -7,7 +7,7 @@ federate:
   client_num: 53
   sample_client_num: 5
   total_round_num: 500
-  save_to: "checkpoints/final_tldr_choice_gemma_fedbiscuit_u3.ckpt"
+  save_to: "checkpoints/final_tldr_choice_gemma3_ml4ed.ckpt"
   ignore_weight: True
   save_freq: 50
   share_local_model: True
@@ -38,7 +38,7 @@ llm:
 dataloader:
   batch_size: 8
 model:
-  type: 'google/gemma-2b@huggingface_llm'
+  type: 'google/gemma-3-1b-pt@huggingface_llm'
 train:
   local_update_steps: 30
   batch_or_epoch: batch
@@ -65,4 +65,4 @@ wandb:
   name_project: "FedBiscuit"
   online_track: True
   client_train_info: True
-expname: tldr/choice_gemma/fedbiscuit_u3
+expname: tldr/choice_gemma3/ml4ed
