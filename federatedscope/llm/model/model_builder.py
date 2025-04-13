@@ -16,8 +16,8 @@ def get_model_from_huggingface(model_name, config, **kwargs):
         kwargs['cache_dir'] = config.llm.cache.model
 
     if config.train.is_enable_half:
-        kwargs['torch_dtype'] = torch.bfloat16
-
+        kwargs['torch_dtype'] = torch.float32  # Changed: bf16 -> fp32
+        
     if config.model.llm_type == 'SequenceClassification':
         from transformers import AutoModelForSequenceClassification
         if len(config.model.llm_kwargs) > 0:
