@@ -6,8 +6,8 @@ federate:
   mode: standalone
   client_num: 53
   sample_client_num: 5
-  total_round_num: 500
-  save_to: "checkpoints/final_tldr_choice_gemma3_ml4ed.ckpt"
+  total_round_num: 200
+  save_to: "checkpoints/final_tldr_choice_llama3.2-3B_ml4ed.ckpt"
   ignore_weight: True
   save_freq: 50
   share_local_model: True
@@ -36,9 +36,9 @@ llm:
   # reward_coeff: 0.1
   grad_accum_step: 2
 dataloader:
-  batch_size: 8
+  batch_size: 2
 model:
-  type: 'google/gemma-3-1b-pt@huggingface_llm'
+  type: 'meta-llama/Llama-3.2-3B@huggingface_llm'
 train:
   local_update_steps: 30
   batch_or_epoch: batch
@@ -65,4 +65,4 @@ wandb:
   name_project: "FedBiscuit"
   online_track: True
   client_train_info: True
-expname: tldr/choice_gemma3/ml4ed
+expname: tldr/choice_llama3.2-3B/ml4ed
