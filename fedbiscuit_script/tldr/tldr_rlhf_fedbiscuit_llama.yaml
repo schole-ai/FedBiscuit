@@ -48,4 +48,10 @@ eval:
   metrics: ['loss', 'acc']
   best_res_update_round_wise_key: val_loss
   count_flops: False
+wandb:
+  use: True
+  name_user: "epfl-ml4ed"
+  name_project: "FedBiscuit"
+  online_track: True
+  client_train_info: False
 expname: tldr/rlhf_llama/<choice_ckpt>
