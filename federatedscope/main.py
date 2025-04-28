@@ -1,5 +1,6 @@
 import os
 import sys
+import wandb
 
 DEV_MODE = False  # simplify the federatedscope re-setup everytime we change
 # the source codes of federatedscope
@@ -63,3 +64,9 @@ if __name__ == '__main__':
                         config=init_cfg.clone(),
                         client_configs=client_cfgs)
     _ = runner.run()
+
+    # Save all files to WandB at the end
+    if init_cfg.wandb.use:
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        wandb.save(os.path.join(project_root, "*"))  # Save all files from the project root
+        wandb.finish()
