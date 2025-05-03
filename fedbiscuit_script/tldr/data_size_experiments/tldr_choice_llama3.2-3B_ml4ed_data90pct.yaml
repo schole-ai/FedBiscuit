@@ -1,0 +1,78 @@
+criterion:
+  type: CrossEntropyLoss
+data:
+  root: data/
+  splits:
+  - 0.9
+  - 0.09
+  - 0.01
+  splitter: meta
+  train_size: 0.9
+  type: reddit-tldr-comparison-choice@llm
+dataloader:
+  batch_size: 2
+device: 0
+early_stop:
+  patience: 0
+eval:
+  best_res_update_round_wise_key: test_loss
+  count_flops: false
+  freq: 50
+  metrics:
+  - loss
+  - acc
+expname: tldr/choice_gemma/data90pct
+federate:
+  client_num: 53
+  ignore_weight: true
+  mode: standalone
+  online_aggr: false
+  sample_client_num: 5
+  save_freq: 50
+  save_to: checkpoints/tldr_choice_gemma_fedbiscuit_u3_data90pct.ckpt
+  share_local_model: true
+  total_round_num: 200
+llm:
+  accelerator:
+    use: true
+  adapter:
+    args:
+    - adapter_method: lora
+      adapter_package: peft
+      lora_alpha: 16
+      lora_dropout: 0.05
+      r: 8
+    count: 3
+    grouping:
+      round: 50
+      use: true
+    use: true
+    warmup:
+      round: 50
+      use: true
+  chat:
+    max_len: 1024
+  grad_accum_step: 2
+  tok_len: 1024
+model:
+  type: meta-llama/Llama-3.2-3B@huggingface_llm
+train:
+  batch_or_epoch: batch
+  is_enable_half: true
+  local_update_steps: 30
+  optimizer:
+    betas: (0.9, 0.95)
+    lr: 1.0e-05
+    type: AdamW
+trainer:
+  choices:
+  - A
+  - B
+  type: llmrewardchoicetrainer
+use_gpu: true
+wandb:
+  client_train_info: true
+  name_project: FedBiscuit
+  name_user: epfl-ml4ed
+  online_track: true
+  use: true
