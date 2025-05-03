@@ -6,7 +6,7 @@ federate:
   mode: standalone
   client_num: 53
   sample_client_num: 5
-  total_round_num: 200
+  total_round_num: 150
   save_to: "checkpoints/final_tldr_choice_llama3.2-3B_ml4ed.ckpt"
   ignore_weight: True
   save_freq: 50
@@ -28,7 +28,7 @@ llm:
     count: 3
     warmup:
       use: True
-      round: 50
+      round: 15
     grouping:
       use: True
       round: 50
