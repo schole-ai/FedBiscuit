@@ -31,7 +31,7 @@ llm:
 dataloader:
   batch_size: 4
 model:
-  type: 'meta-llama/Llama-3.1-8B@huggingface_llm'
+  type: 'meta-llama/Llama-3.1-8B-Instruct@huggingface_llm'
 train:
   local_update_steps: 30
   batch_or_epoch: batch

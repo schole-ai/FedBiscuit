@@ -256,6 +256,10 @@ def load_llm_dataset(config=None, **kwargs):
 
     dataset_name, _ = config.data.type.split('@')
 
+    # ADDED FOR DATA QUANTITY/PERFORMANCE EXPERIMENT
+    # Extract train_size from the configuration
+    train_size = config.data.get('train_size', 1.0)
+
     if dataset_name.endswith('.json'):
         fp = os.path.join(config.data.root, dataset_name)
         list_data_dict = load_json(fp)
@@ -486,9 +490,24 @@ def load_llm_dataset(config=None, **kwargs):
         from federatedscope.llm.dataloader.reddit_tldr import \
             load_comparison_dataset_by_choice
         data_root = os.path.join(config.data.root, 'reddit-tldr-comparison')
-        dataset = load_comparison_dataset_by_choice(data_root,
+        train_dataset, val_dataset, test_dataset = load_comparison_dataset_by_choice(data_root,
                                                     tokenizer,
                                                     max_num_test=1000)
+        
+        # ADDED FOR DATA QUANTITY/PERFORMANCE EXPERIMENT
+        # Subsample the training dataset based on train_size to reduce the training set size
+        if train_size < 1.0:
+            from torch.utils.data import Subset
+            import numpy as np
+           
+            # Set the random seed for reproducibility
+            np.random.seed(42)
+            num_train_samples = int(len(train_dataset) * train_size)
+            indices = np.random.choice(len(train_dataset), num_train_samples, replace=False)
+            train_dataset = Subset(train_dataset, indices)
+
+        dataset = (train_dataset, val_dataset, test_dataset)
+
 
     elif dataset_name.lower() == 'shp-comparison':
         from federatedscope.llm.dataloader.shp import \

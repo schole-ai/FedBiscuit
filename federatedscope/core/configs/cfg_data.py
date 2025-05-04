@@ -44,6 +44,10 @@ def extend_data_cfg(cfg):
 
     # data.file_path takes effect when data.type = 'files'
     cfg.data.file_path = ''
+    
+    # ADDED FOR DATA QUANTITY/PERFORMANCE EXPERIMENT
+    # Add train_size parameter with default value 1.0 (use all training data)
+    cfg.data.train_size = 1.0
 
     # DataLoader related args
     cfg.dataloader = CN()
