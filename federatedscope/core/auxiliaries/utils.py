@@ -159,7 +159,10 @@ def setup_seed(seed):
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
     if tf is not None:
-        tf.set_random_seed(seed)
+        try:
+            tf.random.set_seed(seed)
+        except AttributeError:
+            tf.set_random_seed(seed)
 
 
 def get_resource_info(filename):

@@ -7,7 +7,7 @@ __version__ = '0.3.0'
 URL = 'https://github.com/alibaba/FederatedScope'
 
 minimal_requires = [
-    'numpy<1.23.0',
+    'numpy==1.24.4',
     'scikit-learn==1.0.2',
     'scipy==1.8',
     'pandas',
@@ -20,7 +20,7 @@ minimal_requires = [
     'tensorboard',
     'tensorboardX',
     'pympler',
-    'protobuf==3.19.4',
+    'protobuf==3.20.3',
     'matplotlib',
 ]
 
