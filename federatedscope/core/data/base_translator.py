@@ -59,12 +59,17 @@ class BaseDataTranslator:
         datadict = self.split_to_client(train, val, test)
         return datadict
 
-    def split_train_val_test(self, dataset, cfg=None):
+    def split_train_val_test(self, dataset, cfg=None, seed=42):
         """
-        Split dataset to train, val, test if not provided.
+        Split dataset into train, val, test using a fixed random seed.
+
+        Args:
+            dataset (Dataset or list): The dataset to split.
+            cfg (Optional): Configuration object with `.data.splits`.
+            seed (int, Optional): Random seed for reproducibility.
 
         Returns:
-             List: List of split dataset, like ``[train, val, test]``
+            tuple: (train_dataset, val_dataset, test_dataset)
         """
         from torch.utils.data import Dataset, Subset
 
@@ -79,15 +84,17 @@ class BaseDataTranslator:
             assert len(dataset) == len(['train', 'val', 'test']), error_msg
             return [dataset[0], dataset[1], dataset[2]]
 
+        np.random.seed(seed)  # Set the seed for fair comparisons for ScholeAI
         index = np.random.permutation(np.arange(len(dataset)))
         train_size = int(splits[0] * len(dataset))
         val_size = int(splits[1] * len(dataset))
+        test_size = int(splits[2] * len(dataset))
 
         if isinstance(dataset, Dataset):
             train_dataset = Subset(dataset, index[:train_size])
             val_dataset = Subset(dataset,
-                                 index[train_size:train_size + val_size])
-            test_dataset = Subset(dataset, index[train_size + val_size:])
+                                 index[-(val_size+test_size):-test_size])
+            test_dataset = Subset(dataset, index[-test_size:])
         else:
             train_dataset = [dataset[x] for x in index[:train_size]]
             val_dataset = [

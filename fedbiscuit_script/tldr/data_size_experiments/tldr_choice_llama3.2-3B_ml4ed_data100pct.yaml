@@ -7,7 +7,6 @@ data:
   - 0.09
   - 0.01
   splitter: meta
-  train_size: 1.0
   type: reddit-tldr-comparison-choice@llm
 dataloader:
   batch_size: 2
