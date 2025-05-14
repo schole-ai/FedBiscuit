@@ -101,6 +101,12 @@ class BaseDataTranslator:
                 dataset[x] for x in index[train_size:train_size + val_size]
             ]
             test_dataset = [dataset[x] for x in index[train_size + val_size:]]
+
+        logger.info(f'NUMBER OF TOTAL SAMPLES: {len(dataset)}')
+        logger.info(f'NUMBER OF TRAIN SAMPLES: {len(train_dataset)}')
+        logger.info(f'NUMBER OF VALIDATION SAMPLES: {len(val_dataset)}')
+        logger.info(f'NUMBER OF TEST SAMPLES: {len(test_dataset)}')
+
         return train_dataset, val_dataset, test_dataset
 
     def split_to_client(self, train, val, test):

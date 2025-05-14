@@ -65,8 +65,16 @@ if __name__ == '__main__':
                         client_configs=client_cfgs)
     _ = runner.run()
 
-    # Save all files to WandB at the end
+    # Save an artifact with WandB at the end
     if init_cfg.wandb.use:
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        wandb.save(os.path.join(project_root, "*"))  # Save all files from the project root
+
+        artifact = wandb.Artifact(
+            name=f"FedBiscuit",
+            type="code",
+            description="Full snapshot of the source code",
+        )
+
+        artifact.add_dir(project_root, exclude=["*.pyc", "__pycache__/", ".git/", "data/"])
+        wandb.log_artifact(artifact)
         wandb.finish()
