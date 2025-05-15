@@ -75,6 +75,6 @@ if __name__ == '__main__':
             description="Full snapshot of the source code",
         )
 
-        artifact.add_dir(project_root, exclude=["*.pyc", "__pycache__/", ".git/", "data/"])
+        artifact.add_dir(project_root)
         wandb.log_artifact(artifact)
         wandb.finish()

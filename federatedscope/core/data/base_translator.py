@@ -98,9 +98,9 @@ class BaseDataTranslator:
         else:
             train_dataset = [dataset[x] for x in index[:train_size]]
             val_dataset = [
-                dataset[x] for x in index[train_size:train_size + val_size]
+                dataset[x] for x in index[-(val_size+test_size):-test_size]
             ]
-            test_dataset = [dataset[x] for x in index[train_size + val_size:]]
+            test_dataset = [dataset[x] for x in index[-test_size:]]
 
         logger.info(f'NUMBER OF TOTAL SAMPLES: {len(dataset)}')
         logger.info(f'NUMBER OF TRAIN SAMPLES: {len(train_dataset)}')
