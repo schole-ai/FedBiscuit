@@ -2,6 +2,10 @@ import os
 import json
 import copy
 import pickle
+import random
+import logging 
+
+logger = logging.getLogger(__name__)
 
 from federatedscope.core.data.utils import download_url
 from federatedscope.llm.dataloader.dataloader import load_jsonls, load_jsonl
@@ -338,70 +342,88 @@ def load_best_dataset(data_root, tokenizer, max_num_test=-1):
     return dataset
 
 
-def load_comparison_dataset_by_choice(data_root, tokenizer, max_num_test=-1):
+def load_comparison_dataset_by_choice(data_root, tokenizer, max_num_test=-1, cfg=None):
     token_name = os.path.basename(tokenizer.name_or_path)
-    train_set_path = os.path.join(data_root,
-                                  f'{token_name}_train_choice.pickle')
+    train_set_path = os.path.join(data_root, f'{token_name}_train_choice.pickle')
     val_set_path = os.path.join(data_root, f'{token_name}_val_choice.pickle')
     test_set_path = os.path.join(data_root, f'{token_name}_test_choice.pickle')
-    if os.path.exists(train_set_path) and os.path.exists(val_set_path) and \
-            os.path.exists(test_set_path):
-        with open(train_set_path, 'rb') as f_train, \
-                open(val_set_path, 'rb') as f_val, \
-                open(test_set_path, 'rb') as f_test:
-            train_dataset = pickle.load(f_train)
-            val_dataset = pickle.load(f_val)
-            test_dataset = pickle.load(f_test)
 
-    else:
-        list_train_dict, list_val_dict, list_test_dict = \
-            _download_tldr_cmpr(data_root)
+    logger.info('Downloading TL;DR comparison dataset...')
+    list_train_dict, list_val_dict, list_test_dict = _download_tldr_cmpr(data_root)
+    logger.info(f'Raw training samples before augmentation: {len(list_train_dict)}')
 
-        # For training dataset, we should exchange the order
-        # and append the new training dataset to the list_train_dict
-        exchange_list_train_dict = copy.deepcopy(list_train_dict)
-        for sample in exchange_list_train_dict:
-            sample['output_A'], sample['output_B'] = \
-                sample['output_B'], sample['output_A']
-            sample['choice'] = 1 - sample['choice']
-        list_train_dict = list_train_dict + exchange_list_train_dict
+    # Augment: duplicate with A/B flipped
+    exchange_list_train_dict = copy.deepcopy(list_train_dict)
+    for sample in exchange_list_train_dict:
+        sample['output_A'], sample['output_B'] = sample['output_B'], sample['output_A']
+        sample['choice'] = 1 - sample['choice']
+    list_train_dict = list_train_dict + exchange_list_train_dict
+    logger.info(f'Training samples after augmentation: {len(list_train_dict)}')
 
-        # map the choice to "A" and "B" instead of 0 and 1
-        for list_dict in [list_train_dict, list_test_dict, list_val_dict]:
-            for sample in list_dict:
-                sample['choice'] = " " + chr(sample['choice'] + ord("A"))
+    # Map choice to ' A' or ' B'
+    for list_dict in [list_train_dict, list_val_dict, list_test_dict]:
+        for sample in list_dict:
+            sample['choice'] = " " + chr(sample['choice'] + ord("A"))
 
-        train_dataset = LLMDataset(
-            list_train_dict,
-            tokenizer,
-            prompt_input=TLDR_PROMPT_DICT['summary_cmp'],
-            prompt_no_input=TLDR_PROMPT_DICT['summary_cmp'],
-            output_tag='choice')
-        val_dataset = LLMDataset(
-            list_val_dict,
-            tokenizer,
-            prompt_input=TLDR_PROMPT_DICT['summary_cmp'],
-            prompt_no_input=TLDR_PROMPT_DICT['summary_cmp'],
-            output_tag='choice')
-        test_dataset = LLMDataset(
-            list_test_dict,
-            tokenizer,
-            prompt_input=TLDR_PROMPT_DICT['summary_cmp'],
-            prompt_no_input=TLDR_PROMPT_DICT['summary_cmp'],
-            output_tag='choice')
+    # Shuffle and slice training set based on cfg.data.splits[0]
+    if cfg is not None and hasattr(cfg, 'data') and hasattr(cfg.data, 'splits'):
+        train_percent = cfg.data.splits[0]
+        if 0 < train_percent <= 1:
+            train_percent = train_percent / 0.9
+            logger.info(f'Shuffling training samples and selecting {train_percent*100:.0f}% subset...')
+            random.seed(42)
+            random.shuffle(list_train_dict)
+            original_size = len(list_train_dict)
+            num_train = int(original_size * train_percent)
+            list_train_dict = list_train_dict[:num_train]
+            logger.info(f'Training samples after slicing: {len(list_train_dict)} (from {original_size})')
+        else:
+            logger.warning(f'Invalid train_percent value in cfg: {train_percent}')
 
-        # Store these three lists to a pickle file
-        with open(train_set_path, 'wb') as f_train, \
-                open(val_set_path, 'wb') as f_val, \
-                open(test_set_path, 'wb') as f_test:
-            pickle.dump(train_dataset, f_train)
-            pickle.dump(val_dataset, f_val)
-            pickle.dump(test_dataset, f_test)
+    # Build datasets
+    logger.info('Building LLM datasets...')
+    train_dataset = LLMDataset(
+        list_train_dict,
+        tokenizer,
+        prompt_input=TLDR_PROMPT_DICT['summary_cmp'],
+        prompt_no_input=TLDR_PROMPT_DICT['summary_cmp'],
+        output_tag='choice'
+    )
+    val_dataset = LLMDataset(
+        list_val_dict,
+        tokenizer,
+        prompt_input=TLDR_PROMPT_DICT['summary_cmp'],
+        prompt_no_input=TLDR_PROMPT_DICT['summary_cmp'],
+        output_tag='choice'
+    )
+    test_dataset = LLMDataset(
+        list_test_dict,
+        tokenizer,
+        prompt_input=TLDR_PROMPT_DICT['summary_cmp'],
+        prompt_no_input=TLDR_PROMPT_DICT['summary_cmp'],
+        output_tag='choice'
+    )
 
-    # shrink val and test dataset
+    # Save to disk
+    logger.info('Saving datasets to disk...')
+    with open(train_set_path, 'wb') as f_train, \
+         open(val_set_path, 'wb') as f_val, \
+         open(test_set_path, 'wb') as f_test:
+        pickle.dump(train_dataset, f_train)
+        pickle.dump(val_dataset, f_val)
+        pickle.dump(test_dataset, f_test)
+
+    # Optional shrinking of val/test sets
     if max_num_test > 0:
+        logger.info(f'Shrinking validation and test sets to {max_num_test} samples (for debugging)...')
         val_dataset.input_ids = val_dataset.input_ids[:max_num_test]
         test_dataset.input_ids = test_dataset.input_ids[:max_num_test]
+
+    logger.info('Dataset loading complete.')
+    logger.info(f'NUMBER OF TRAIN SAMPLES: {len(train_dataset)}')
+    logger.info(f'NUMBER OF VALIDATION SAMPLES: {len(val_dataset)}')
+    logger.info(f'NUMBER OF TEST SAMPLES: {len(test_dataset)}')
+    logger.info(f'NUMBER OF TOTAL SAMPLES: {len(train_dataset) + len(val_dataset) + len(test_dataset)}')
 
     dataset = (train_dataset, val_dataset, test_dataset)
 

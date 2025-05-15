@@ -488,7 +488,8 @@ def load_llm_dataset(config=None, **kwargs):
         data_root = os.path.join(config.data.root, 'reddit-tldr-comparison')
         dataset = load_comparison_dataset_by_choice(data_root,
                                                     tokenizer,
-                                                    max_num_test=1000)
+                                                    max_num_test=1000,
+                                                    cfg=init_cfg)
 
     elif dataset_name.lower() == 'shp-comparison':
         from federatedscope.llm.dataloader.shp import \
