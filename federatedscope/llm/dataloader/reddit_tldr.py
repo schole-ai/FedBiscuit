@@ -6,6 +6,8 @@ import random
 import logging 
 
 logger = logging.getLogger(__name__)
+if not logger.hasHandlers():
+    logging.basicConfig(level=logging.INFO)
 
 from federatedscope.core.data.utils import download_url
 from federatedscope.llm.dataloader.dataloader import load_jsonls, load_jsonl

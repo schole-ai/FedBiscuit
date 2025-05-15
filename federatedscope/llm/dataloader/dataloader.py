@@ -489,7 +489,7 @@ def load_llm_dataset(config=None, **kwargs):
         dataset = load_comparison_dataset_by_choice(data_root,
                                                     tokenizer,
                                                     max_num_test=1000,
-                                                    cfg=init_cfg)
+                                                    cfg=config)
 
     elif dataset_name.lower() == 'shp-comparison':
         from federatedscope.llm.dataloader.shp import \
