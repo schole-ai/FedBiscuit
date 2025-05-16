@@ -75,6 +75,6 @@ if __name__ == '__main__':
             description="Full snapshot of the source code",
         )
 
-        artifact.add_dir(project_root)
+        artifact.add_dir(project_root)  # TODO: Fix recursive add
         wandb.log_artifact(artifact)
         wandb.finish()
