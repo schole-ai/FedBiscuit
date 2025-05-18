@@ -63,18 +63,18 @@ if __name__ == '__main__':
                         client_class=get_client_cls(init_cfg),
                         config=init_cfg.clone(),
                         client_configs=client_cfgs)
-    _ = runner.run()
+    #_ = runner.run()
 
     # Save an artifact with WandB at the end
     if init_cfg.wandb.use:
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        checkpoint_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../checkpoints"))
 
         artifact = wandb.Artifact(
-            name=f"FedBiscuit",
-            type="code",
-            description="Full snapshot of the source code",
+            name=f"BinarySelector-Checkpoints-{str(int(init_cfg.data.splits[0]/0.9*100))}pct",
+            description=f"Checkpoint files for the data experiment {init_cfg.expname}.",
+            type="code"
         )
 
-        artifact.add_dir(project_root)
+        artifact.add_dir(checkpoint_path)
         wandb.log_artifact(artifact)
         wandb.finish()
