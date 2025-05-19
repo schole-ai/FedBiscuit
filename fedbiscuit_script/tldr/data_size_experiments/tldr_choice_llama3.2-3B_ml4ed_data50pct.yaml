@@ -22,7 +22,7 @@ eval:
   - acc
 expname: tldr/choice_llama-3.2-3B/data50pct
 federate:
-  client_num: 53
+  client_num: 52
   ignore_weight: true
   mode: standalone
   online_aggr: false

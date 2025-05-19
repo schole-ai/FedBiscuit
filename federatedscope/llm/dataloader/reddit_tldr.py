@@ -354,20 +354,7 @@ def load_comparison_dataset_by_choice(data_root, tokenizer, max_num_test=-1, cfg
     list_train_dict, list_val_dict, list_test_dict = _download_tldr_cmpr(data_root)
     logger.info(f'Raw training samples before augmentation: {len(list_train_dict)}')
 
-    # Augment: duplicate with A/B flipped
-    exchange_list_train_dict = copy.deepcopy(list_train_dict)
-    for sample in exchange_list_train_dict:
-        sample['output_A'], sample['output_B'] = sample['output_B'], sample['output_A']
-        sample['choice'] = 1 - sample['choice']
-    list_train_dict = list_train_dict + exchange_list_train_dict
-    logger.info(f'Training samples after augmentation: {len(list_train_dict)}')
-
-    # Map choice to ' A' or ' B'
-    for list_dict in [list_train_dict, list_val_dict, list_test_dict]:
-        for sample in list_dict:
-            sample['choice'] = " " + chr(sample['choice'] + ord("A"))
-
-    # Shuffle and slice training set based on cfg.data.splits[0]
+     # Shuffle and slice training set based on cfg.data.splits[0]
     if cfg is not None and hasattr(cfg, 'data') and hasattr(cfg.data, 'splits'):
         train_percent = cfg.data.splits[0]
         if 0 < train_percent <= 1:
@@ -381,6 +368,19 @@ def load_comparison_dataset_by_choice(data_root, tokenizer, max_num_test=-1, cfg
             logger.info(f'Training samples after slicing: {len(list_train_dict)} (from {original_size})')
         else:
             logger.warning(f'Invalid train_percent value in cfg: {train_percent}')
+
+    # Augment: duplicate with A/B flipped
+    exchange_list_train_dict = copy.deepcopy(list_train_dict)
+    for sample in exchange_list_train_dict:
+        sample['output_A'], sample['output_B'] = sample['output_B'], sample['output_A']
+        sample['choice'] = 1 - sample['choice']
+    list_train_dict = list_train_dict + exchange_list_train_dict
+    logger.info(f'Training samples after augmentation: {len(list_train_dict)}')
+
+    # Map choice to ' A' or ' B'
+    for list_dict in [list_train_dict, list_val_dict, list_test_dict]:
+        for sample in list_dict:
+            sample['choice'] = " " + chr(sample['choice'] + ord("A"))
 
     # Build datasets
     logger.info('Building LLM datasets...')
