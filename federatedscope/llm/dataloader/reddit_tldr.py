@@ -360,7 +360,7 @@ def load_comparison_dataset_by_choice(data_root, tokenizer, max_num_test=-1, cfg
         if 0 < train_percent <= 1:
             train_percent = train_percent / 0.9
             logger.info(f'Shuffling training samples and selecting {train_percent*100:.0f}% subset...')
-            random.seed(42)
+            #random.seed(42)
             random.shuffle(list_train_dict)
             original_size = len(list_train_dict)
             num_train = int(original_size * train_percent)
