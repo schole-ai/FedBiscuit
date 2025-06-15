@@ -237,7 +237,9 @@ def load_human_finetuning_dataset(data_root,
     np.random.shuffle(list_train_dict)
 
     # Reduce the training dataset to 25% of its size
+    print(f"\n\n\nINITIAL TRAINING SET SIZE: {len(list_train_dict)}")
     list_train_dict = list_train_dict[:len(list_train_dict) // 4]
+    print(f"\n\n\REDUCED TRAINING SET SIZE: {len(list_train_dict)}")
 
 
     # First 60% for fine-tuning, last 40% for rlhf
