@@ -70,7 +70,7 @@ if __name__ == '__main__':
         checkpoint_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../checkpoints"))
 
         artifact = wandb.Artifact(
-            name=f"BinarySelector-Checkpoints-{str(int(init_cfg.data.splits[0]/0.9*100))}pct",
+            name=f"RLHF-Checkpoints-{str(int(init_cfg.data.splits[0]/0.9*100))}pct",
             description=f"Checkpoint files for the data experiment {init_cfg.expname}.",
             type="code"
         )

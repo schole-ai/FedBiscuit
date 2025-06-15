@@ -4,6 +4,7 @@ import copy
 import pickle
 import random
 import logging 
+import numpy as np
 
 logger = logging.getLogger(__name__)
 if not logger.hasHandlers():
@@ -226,9 +227,18 @@ def load_human_finetuning_dataset(data_root,
                                   tokenizer,
                                   rlhf=False,
                                   max_num_test=-1,
-                                  raw_no_prompt=False):
+                                  raw_no_prompt=False,
+                                  seed=42):
     list_train_dict, list_val_dict, list_test_dict = \
         _tldr_human_for_prtraining(data_root)
+
+    # Shuffle the training dataset
+    np.random.seed(seed)
+    np.random.shuffle(list_train_dict)
+
+    # Reduce the training dataset to 25% of its size
+    list_train_dict = list_train_dict[:len(list_train_dict) // 4]
+
 
     # First 60% for fine-tuning, last 40% for rlhf
     idx = int(len(list_train_dict) * 0.6)
